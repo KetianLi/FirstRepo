@@ -1,0 +1,7 @@
+#if only wanna only retrieve geography information from all factors column
+geography_columns=[a for a in factors_scores.columns if ('geography' in a)|('id' in a)]
+
+
+#or wanan add some other columns
+columns2=geography_columns+['np_ari_contr']
+columns2
