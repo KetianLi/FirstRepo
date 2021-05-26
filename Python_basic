@@ -6,6 +6,49 @@ folder = "/home/cdsw/financialcrimeanalytics/issues/issue_0987"
 df = pd.read_csv(folder+"/issue_0987.csv", 
                  sep="\t")
 
+#get current directory
+import os
+os.getcwd()
+
+#change directory
+os.chdir('fc-demo')
+
+#date
+from datetime import datetime, timedelta
+import datetime
+from datetime import date                
+today=date.today()
+today
+
+d2=today.strftime("%Y-%m-%d")
+d2
+
+date_1 = datetime.datetime.strptime(d2, "%Y-%m-%d")
+date_1
+
+end_date = date_1 - datetime.timedelta(days=2)
+end_date
+
+date_processed=end_date.strftime("%Y-%m-%d")
+date_processed
+
+
+
+# save files to xlsx.
+xls_file=f'BusinessBanking_CRA_AlertReport_ {run_date}.xlsx'
+xlm_file=f'BusinessBanking_CRA_AlertReport_ {run_date}.xml'
+
+writer = pd.ExcelWriter(xls_file, engine='xlsxwriter')
+ 
+# Convert the dataframe to an XlsxWriter Excel object.
+df_new.to_excel(writer, sheet_name='RetailCRA',index=False)
+ 
+# Close the Pandas Excel writer and output the Excel file.
+writer.save()
+
+a=pd.read_excel(xls_file,index_col=0,  engine='openpyxl')
+a
+
 
 #if only wanna only retrieve geography information from all factors column
 geography_columns=[a for a in factors_scores.columns if ('geography' in a)|('id' in a)]
@@ -15,7 +58,37 @@ geography_columns=[a for a in factors_scores.columns if ('geography' in a)|('id'
 columns2=geography_columns+['np_ari_contr']
 columns2
 
-
+#basic lambda function:
+factors_scores['if_high_risk']=factors_scores['np_product_contr'].apply(lambda x:'yes' if x>30 else 'no')
+#some nested condition by using lambda
+df['fruit']=df.apply(lambda x: 
+                        '1.apple' if x['Apple']==1 else 
+                        '2.orange' if x['Orange']==1 else 
+                        '3.pear' if x['Pear']==1  else 
+                        '4.unknown', axis=1)
+                                               
 #value counts and plot bar chart
 df_factors_scores['difference'].value_counts()
 df_factors_scores.groupby('difference').size().plot.bar()
+
+
+#conditional filtering
+a=factors_scores[(factors_scores['np_product_contr']>60) & (factors_scores['np_industry_type_contr']>30)]
+#or
+b=factors_scores[(factors_scores['np_product_contr']>60) | (factors_scores['np_industry_type_contr']>30)]
+a.head(2)
+
+#rename
+new_df_geo=df_geography.rename(columns={'customer_id':'customer_number','score_id':'score_number'})
+new_df_geo.head(2)
+
+#drop
+df_drop=new_df_geo.drop(['np_geography_customer_info','np_geography_customer_info'],axis=1)
+df_drop.head(2)
+
+#only keep the first 3 columns
+df_keep=new_df_geo.loc[:,['customer_number','score_number','np_geography_customer_contr']]
+df_keep.head()
+
+##Left/Right Join, Merge
+df_merge=pd.merge(df_kensho,df_audit[['risk_level','cra_trigger','customer_id']],left_on='val_customer_source_unique_id',right_on='customer_id',how='left')
