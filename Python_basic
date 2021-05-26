@@ -5,3 +5,8 @@ geography_columns=[a for a in factors_scores.columns if ('geography' in a)|('id'
 #or wanan add some other columns
 columns2=geography_columns+['np_ari_contr']
 columns2
+
+
+#value counts and plot bar chart
+df_factors_scores['difference'].value_counts()
+df_factors_scores.groupby('difference').size().plot.bar()
