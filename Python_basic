@@ -1,3 +1,12 @@
+import sys
+sys.path.append("/home/cdsw/financialcrimeanalytics")
+# Current folder
+folder = "/home/cdsw/financialcrimeanalytics/issues/issue_0987"
+# Check the results using a pandas DataFrame
+df = pd.read_csv(folder+"/issue_0987.csv", 
+                 sep="\t")
+
+
 #if only wanna only retrieve geography information from all factors column
 geography_columns=[a for a in factors_scores.columns if ('geography' in a)|('id' in a)]
 
