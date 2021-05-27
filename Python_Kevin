@@ -1,0 +1,82 @@
+import sys
+sys.path.append("/home/cdsw/fc-analytics-knowledge-share-and-training")
+
+from functions import email as ema
+from functions import impala as imp
+import pandas as pd
+import subprocess
+import os as os
+import datetime
+
+
+odate =  datetime.datetime.now().date() - datetime.timedelta(days=1)
+date_processed = "'"+odate.strftime("%Y-%m-%d")+"'"
+date_processed
+
+
+issue = '16'
+
+# Current folder
+folder = f"/home/cdsw/fc-analytics-knowledge-share-and-training/Training/i{issue}"
+folder_sql = folder + "/sql"
+folder_output = folder + "/output"
+folder_input = folder + "/input"
+
+subprocess.Popen(['mkdir', '-p', folder])
+subprocess.Popen(['mkdir', '-p', folder_sql])
+subprocess.Popen(['mkdir', '-p', folder_output])
+subprocess.Popen(['mkdir', '-p', folder_input])
+
+
+#read in xlsx
+
+#!pip3 install openpyxl -i https://nexus-proxy.almuk.santanderuk.corp/repository/pypi-group/simple --trusted-host nexus-proxy.almuk.santanderuk.corp
+
+customers =  pd.read_excel(folder_input+'/customers.xlsx', 
+                      #index_col=0, 
+                      engine='openpyxl', sheet_name = 'Sheet1')
+
+# upload the to exp area
+imp.upload_exp(data_export=customers,
+               exp_area='restricted',
+               exp_table= 'tmp_ky_training_16_2'
+              )
+
+
+# Run query in implala and download the table as csv
+imp.query_impala(query=folder_sql + f"/i{issue}.sql",
+                 query_option=1,
+                 output=folder_output +  f'/issue_{issue}.csv',
+                 variables=['--var', 'date_processed=' + date_processed])
+
+
+# read in the data from csv
+
+df = pd.read_csv(folder_output + f'/issue_{issue}.csv', sep = '\t', dtype=str)
+
+df
+
+
+#!pip3 install XlsxWriter -i https://nexus-proxy.almuk.santanderuk.corp/repository/pypi-group/simple --trusted-host nexus-proxy.almuk.santanderuk.corp
+ 
+import xlsxwriter
+
+writer = pd.ExcelWriter(folder_output+f"/issue_{issue}.xlsx", engine="xlsxwriter")
+
+df.to_excel(writer, sheet_name='Details', index=False)
+
+#detail to set the format of excel, please refer to:  https://xlsxwriter.readthedocs.io/worksheet.html 
+
+#set up the format of excel file
+
+workbook = writer.book
+worksheet = writer.sheets['Details']
+
+format1 = workbook.add_format({'num_format': '@'})
+
+worksheet.set_column('A:A', 18)
+worksheet.set_column('B:B', 20, format1)
+worksheet.set_column('C:C', 25)
+ 
+writer.save()
+
