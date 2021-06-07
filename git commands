@@ -1,0 +1,25 @@
+Branching for the "issues" project
+The below branching flow has been agreed in order to be used for the "issues" project that will save the codes to solve the different issues raised by the stakeholders.
+
+If you need to create a remote branch, an example of the Git commands that can be used to follow the schema can be the following:
+
+Clone the "master" branch of the project in your local machine: git clone <URL master branch>
+Make the changes you need into the project. For instance, create a new folder and include there the files used to solve an issue.
+Add all the changes into the staging area of the local repository: git add *
+Commit the changes in the local repository: git commit -m "[commit message]"
+Create and go to a new branch in you local copy of the repository: git checkout -b [branch name]
+Push the changes into the remote repository: git push origin [branch name]
+You can create a merge request in Gitlab in order to merge your new branch with the "issues" branch in order to include your changes with the other issues.
+
+
+
+
+If you have already created a remote branch in Gitlab, an example of the Git commands that can be used to follow the schema can be the following:
+
+Clone the "master" branch of the project in your local machine: git clone <URL master branch>
+Check out to the branch you created: git checkout <branch name>
+Make the changes you need into the project. For instance, create a new folder and include there the files used to solve an issue.
+Add all the changes into the staging area of the local repository: git add *
+Commit the changes in the local repository: git commit -m "[commit message]"
+Push the changes into the remote repository: git push
+You can create a merge request in Gitlab in order to merge your new branch with the "issues" branch in order to include your changes with the other issues.
