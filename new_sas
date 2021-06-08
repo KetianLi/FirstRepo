@@ -1,0 +1,38 @@
+proc sql;
+connect to impala (dsn="impdc2");
+create table samples_per as select * from connection to impala (
+with score_contr as
+    (
+    select 
+        score_id,        
+        max(case when check_name = 'Personal Products and Services' then contribution end) as Per_Product_Contr,
+        max(case when check_name = 'Personal Occupation' then contribution end) as Per_Occupation_Contr,
+        max(case when check_name = 'Personal Geography Nationality' then contribution end) as Per_Nationality_Contr,
+        max(case when check_name = 'Personal Geography Links' then contribution end) as Per_Geography_Contr,
+        max(case when check_name = 'Personal Delivery Channel' then contribution end) as Per_Channel_Contr,
+        max(case when check_name = 'Personal Customer Type' then contribution end) as Per_Customer_Type_Contr,
+        max(case when check_name = 'Personal Additional Risk Indicators' then contribution end) as Per_ARI_Contr,
+
+
+        max(case when check_name = 'Personal Products and Services' then info end) as Per_Product_Info,
+        max(case when check_name = 'Personal Occupation' then info end) as Per_Occupation_Info,
+        max(case when check_name = 'Personal Geography Nationality' then info end) as Per_Nationality_Info,
+        max(case when check_name = 'Personal Geography Links' then info end) as Per_Geography_Info,
+        max(case when check_name = 'Personal Delivery Channel' then info end) as Per_Channel_Info,
+        max(case when check_name = 'Personal Customer Type' then info end) as Per_Customer_Type_Info,
+        max(case when check_name = 'Personal Additional Risk Indicators' then info end) as Per_ARI_Info
+    from multi_entity_aml.nr_cdd_customer_score_contrib_partitions where date_processed = &date_processed
+    group by 1
+        )
+select 
+    customer_id, 
+    c.* 
+    from score_contr c 
+    inner join 
+    (select distinct customer_id, score_id as audit_score_id 
+    from MULTI_ENTITY_AML.nr_san_audit_partitions 
+    where date_processed = &date_processed and customer_id IN ('RUKF68871240','RUKJ1405351')
+        and substr(cra_trigger,1,10) > &date_processed1 
+    ) a on c.score_id = audit_score_id 
+);
+quit;
